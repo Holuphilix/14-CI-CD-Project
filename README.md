@@ -89,3 +89,223 @@ git commit -m "Initial project setup"
 git branch -M main
 git push -u origin main
 ```
+
+
+## Lesson 2: Automated Releases & Versioning
+
+### Goal: Automate versioning and releases using GitHub Actions and Semantic Versioning.
+
+### Step 1: Install `semantic-release`
+
+Semantic versioning helps automate releases based on commit messages.
+
+**Commands:**
+```bash
+npm install --save-dev semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
+```
+
+### Step 2: Create a GitHub Actions Workflow for Releases
+
+Inside `.github/workflows/`, create a new file called `release.yml`:
+
+**Commands:**
+```bash
+touch .github/workflows/release.yml
+```
+
+Add the following content to `release.yml`:
+
+```yaml
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Use built-in token
+        run: npx semantic-release
+```
+
+### Step 3: Push Changes to GitHub
+
+**Commands:**
+```bash
+git add .
+git commit -m "Add automated release workflow"
+git push origin main
+```
+
+Once this is set up, every push to the `main` branch will trigger a new release with an auto-generated changelog. 🎉
+
+## Lesson 3: Building the Backend API
+
+🔹 **Goal: Create a simple Node.js backend API with Express, add unit tests, and containerize it using Docker.**
+
+### Step 1: Set Up a Node.js Application
+
+1️⃣ Navigate to the `api/` directory and initialize a Node.js project:
+
+```bash
+cd api
+npm init -y
+```
+
+2️⃣ Install **Express.js** to create a basic server:
+
+```bash
+npm install express
+```
+
+---
+
+### Step 2: Create the API Server
+
+- Inside the `api/` directory, create an `index.js` file:
+
+```bash
+touch index.js
+```
+
+- Open `index.js` and add the following code:
+
+```javascript
+const express = require("express");
+const app = express();
+
+app.get("/", (req, res) => {
+    res.json({ message: "CI/CD Deployment Success!" });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+```
+
+---
+
+### Step 3: Test the API Locally
+
+1️⃣ Run the server:
+
+```bash
+node index.js
+```
+
+2️⃣ Open your browser and visit:  
+   👉 `http://localhost:3000/`  
+   You should see:
+
+   ```json
+   { "message": "CI/CD Deployment Success!" }
+   ```
+
+### Step 4: Add Unit Tests
+
+1️⃣ Install Jest for testing:
+
+```bash
+npm install --save-dev jest supertest
+```
+
+2️⃣ Create a test file:
+
+```bash
+mkdir tests && touch tests/api.test.js
+```
+
+3️⃣ Open `tests/api.test.js` and add:
+
+```javascript
+const request = require("supertest");
+const express = require("express");
+
+const app = express();
+app.get("/", (req, res) => {
+    res.json({ message: "CI/CD Deployment Success!" });
+});
+
+describe("API Tests", () => {
+    it("should return a success message", async () => {
+        const res = await request(app).get("/");
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.message).toBe("CI/CD Deployment Success!");
+    });
+});
+```
+
+4️⃣ Run the tests:
+
+```bash
+npx jest
+```
+
+### Step 5: Containerize the API with Docker
+
+1️⃣ Inside the **api/** folder, create a `Dockerfile`:
+Since we will deploy the API to an AWS EC2 instance via GitHub Actions, we will set up Docker but NOT run it locally yet.
+
+```bash
+touch Dockerfile
+```
+
+2️⃣ Open `Dockerfile` and add:
+
+```dockerfile
+# Use Node.js base image
+FROM node:18
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files and install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy all files to container
+COPY . .
+
+# Expose port
+EXPOSE 3000
+
+# Start the application
+CMD ["node", "index.js"]
+```
+
+3️⃣ Build and run the Docker container:
+
+```bash
+docker build -t ci-cd-api .
+docker run -p 3000:3000 ci-cd-api
+```
+
+4️⃣ Open `http://localhost:3000/` to verify the API is running inside a container.
+
+---
+
+🚀 **Next Step:** Move to [Lesson 3: Setting Up CI/CD with GitHub Actions](#lesson-3-setting-up-cicd-with-github-actions)  
+
+---
+
+Let me know if you need modifications! 🔥🚀

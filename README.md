@@ -143,7 +143,7 @@ jobs:
 
       - name: Run Semantic Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use built-in token
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}  # Use built-in token
         run: npx semantic-release
 ```
 

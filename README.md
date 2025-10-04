@@ -1,4 +1,4 @@
-# GitHub Actions CI/CD Deployment
+# Mini Project: GitHub Actions CI/CD Deployment
 
 ## Introduction
 This project demonstrates how to implement a full CI/CD pipeline using GitHub Actions. The application is built with Node.js and Docker, and it is deployed to an AWS EC2 instance.
@@ -146,7 +146,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}  # Use built-in token
         run: npx semantic-release
 ```
-
+        
 ### Step 3: Push Changes to GitHub
 
 **Commands:**
